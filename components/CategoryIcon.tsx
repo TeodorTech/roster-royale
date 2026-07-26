@@ -146,5 +146,19 @@ export function CategoryIcon({ name, className, accent = "currentColor" }: Props
           <path d="M12 6.4v11.2M8.6 10.4 12 12l3.4-1.6" fill="none" />
         </svg>
       );
+
+    /* A blank plate waiting to be filled in — the custom box has no genre of
+       its own, so the icon is the empty card plus the spark that fills it. */
+    case "custom-spark":
+      return (
+        <svg {...shared}>
+          <rect x="4.4" y="4.2" width="13.2" height="16" rx="2" fill={accent} />
+          <path
+            d="M10 8.6h2v2.8h2.8v2H12v2.8h-2v-2.8H7.2v-2H10V8.6Z"
+            fill="#F0E1BE"
+          />
+          <path d="M18.6 2.4l.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8.8-1.9Z" fill="#F0E1BE" />
+        </svg>
+      );
   }
 }

@@ -26,7 +26,8 @@ export type IconName =
   | "sword"
   | "dragon"
   | "hero-mask"
-  | "crest-shield";
+  | "crest-shield"
+  | "custom-spark";
 
 /** A seed file after validation, with display colors derived for the dark board. */
 export type Category = {
@@ -40,6 +41,22 @@ export type Category = {
   rubric: string;
   note?: string;
   entries: Entry[];
+};
+
+/**
+ * A shelf tile that is not a playable category — the upgrade path. Deliberately
+ * a separate type from `Category`: it has no entries, so keeping it out of
+ * `CATEGORIES` is what stops `/play` from ever being handed an empty pool.
+ */
+export type LockedCategory = {
+  id: string;
+  label: string;
+  icon: IconName;
+  accent: string;
+  /** Stands in for the entry count on the shelf tile. */
+  teaser: string;
+  /** Where the tile goes instead of `/play`. */
+  href: string;
 };
 
 /** 0 is the red tray, 1 is the blue tray. Fixed for the life of a match. */

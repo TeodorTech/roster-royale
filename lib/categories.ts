@@ -8,7 +8,7 @@ import hotdDragons from "@/data/hotdDragons.json";
 import marvelHeroes from "@/data/marvelHeroes.json";
 import heritageClubs from "@/data/heritageClubs.json";
 
-import type { Category, CategoryFile, Entry, IconName } from "./types";
+import type { Category, CategoryFile, Entry, IconName, LockedCategory } from "./types";
 import { readableOn } from "./color";
 
 /** Kept in sync with `--table` in globals.css — accents are checked against it. */
@@ -95,3 +95,19 @@ export const CATEGORIES: Category[] = [
 export function getCategory(id: string | undefined): Category | undefined {
   return CATEGORIES.find((c) => c.id === id);
 }
+
+/**
+ * The one paid box on the shelf. It sits outside `CATEGORIES` on purpose — it
+ * has no entries to draft, so `getCategory` must never return it and
+ * `/play?category=custom` stays a 404 rather than a crash.
+ *
+ * Brass rather than a category colour: gold is the upgrade, not a genre.
+ */
+export const CUSTOM_CATEGORY: LockedCategory = {
+  id: "custom",
+  label: "Custom Game",
+  icon: "custom-spark",
+  accent: "#F0A81C",
+  teaser: "Any category you want",
+  href: "/custom",
+};

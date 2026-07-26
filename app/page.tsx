@@ -1,7 +1,8 @@
 import Link from "next/link";
 
-import { CATEGORIES } from "@/lib/categories";
+import { CATEGORIES, CUSTOM_CATEGORY } from "@/lib/categories";
 import { CategoryIcon } from "@/components/CategoryIcon";
+import { Padlock } from "@/components/Padlock";
 import { Wordmark } from "@/components/Wordmark";
 import { POOL_SIZE, ROSTER_SIZE } from "@/lib/draft";
 
@@ -57,6 +58,42 @@ export default function Home() {
             </Link>
           </li>
         ))}
+
+        {/* The paid box. Same lid as the others so it reads as part of the set,
+            sealed in brass so it plainly isn't included. */}
+        <li className="contents">
+          <Link
+            href={CUSTOM_CATEGORY.href}
+            className="box-lid box-lid--locked moulded plate relative flex flex-col justify-between overflow-hidden rounded-lg p-4 sm:p-5"
+          >
+            <span
+              className="absolute inset-x-0 top-0 h-2 border-b-[3px] border-ink"
+              style={{ background: CUSTOM_CATEGORY.accent }}
+              aria-hidden
+            />
+            {/* Foil hatching, so the tile reads as sealed at a glance. */}
+            <span className="locked-hatch" aria-hidden />
+
+            <span className="absolute right-3 top-5 z-20 sm:right-4">
+              <Padlock className="h-7 w-7 sm:h-8 sm:w-8" />
+            </span>
+
+            <CategoryIcon
+              name={CUSTOM_CATEGORY.icon}
+              accent={CUSTOM_CATEGORY.accent}
+              className="relative z-10 mt-3 h-10 w-10 sm:h-12 sm:w-12"
+            />
+
+            <div className="relative z-10 mt-6">
+              <h3 className="font-display text-base leading-none text-ink sm:text-lg">
+                {CUSTOM_CATEGORY.label}
+              </h3>
+              <p className="mt-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/45">
+                {CUSTOM_CATEGORY.teaser}
+              </p>
+            </div>
+          </Link>
+        </li>
       </ul>
 
       <p className="mt-8 text-center text-[11px] text-plate/40">
