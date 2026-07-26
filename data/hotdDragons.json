@@ -1,0 +1,129 @@
+{
+  "category": "hotdDragons",
+  "label": "House of the Dragons",
+  "icon": "dragon",
+  "accentColor": "#C1440E",
+  "rubric": "Size & power · Rider bond · Battle record · Legend status",
+  "entries": [
+    {
+      "id": "dra-001",
+      "name": "Vhagar",
+      "rating": 99,
+      "rationale": "The largest living dragon in Westeros, a two-century-old veteran of Aegon's Conquest."
+    },
+    {
+      "id": "dra-002",
+      "name": "Sunfyre",
+      "rating": 93,
+      "rationale": "Called the most beautiful dragon ever to fly, and one of the deadliest despite crippling injuries."
+    },
+    {
+      "id": "dra-003",
+      "name": "Caraxes",
+      "rating": 92,
+      "rationale": "The 'Blood Wyrm,' Daemon Targaryen's fierce, blood-red mount and a war veteran many times over."
+    },
+    {
+      "id": "dra-004",
+      "name": "Vermithor",
+      "rating": 91,
+      "rationale": "The 'Bronze Fury,' second only to Vhagar in size, once ridden by Old King Jaehaerys himself."
+    },
+    {
+      "id": "dra-005",
+      "name": "Meleys",
+      "rating": 90,
+      "rationale": "The 'Red Queen,' among the fastest dragons alive, ridden by Rhaenys into her final, legendary stand."
+    },
+    {
+      "id": "dra-006",
+      "name": "Cannibal",
+      "rating": 88,
+      "rationale": "A wild, unridden dragon of monstrous size and appetite, feared even by other dragons."
+    },
+    {
+      "id": "dra-007",
+      "name": "Syrax",
+      "rating": 85,
+      "rationale": "Rhaenyra Targaryen's golden dragon, symbol of her claim to the Iron Throne."
+    },
+    {
+      "id": "dra-008",
+      "name": "Seasmoke",
+      "rating": 84,
+      "rationale": "A striking silver-and-white dragon bonded first to Laenor Velaryon, then to Addam of Hull."
+    },
+    {
+      "id": "dra-009",
+      "name": "Sheepstealer",
+      "rating": 83,
+      "rationale": "A feral, ill-tempered wild dragon eventually tamed by the fearless dragonseed Nettles."
+    },
+    {
+      "id": "dra-010",
+      "name": "Dreamfyre",
+      "rating": 82,
+      "rationale": "One of the oldest dragons of the era, bonded to the gentle, prophetic Helaena Targaryen."
+    },
+    {
+      "id": "dra-011",
+      "name": "Vermax",
+      "rating": 79,
+      "rationale": "Jacaerys Velaryon's swift dragon, put to critical use rallying the north for Rhaenyra's cause."
+    },
+    {
+      "id": "dra-012",
+      "name": "Silverwing",
+      "rating": 78,
+      "rationale": "Once flown by Good Queen Alysanne, later ridden into war by Ulf the White."
+    },
+    {
+      "id": "dra-013",
+      "name": "Tessarion",
+      "rating": 77,
+      "rationale": "The 'Blue Queen,' a small but brilliantly colored dragon bonded to Daeron Targaryen."
+    },
+    {
+      "id": "dra-014",
+      "name": "Moondancer",
+      "rating": 76,
+      "rationale": "A small, agile dragon whose young rider Baela Targaryen fought fiercely above her weight class."
+    },
+    {
+      "id": "dra-015",
+      "name": "Arrax",
+      "rating": 74,
+      "rationale": "Lucerys Velaryon's dragon, whose fatal clash with Vhagar over Shipbreaker Bay ignited the war."
+    },
+    {
+      "id": "dra-016",
+      "name": "Tyraxes",
+      "rating": 68,
+      "rationale": "A young dragon bonded to Joffrey Velaryon, barely grown by the time the Dance began."
+    },
+    {
+      "id": "dra-017",
+      "name": "Morning",
+      "rating": 67,
+      "rationale": "Hobert Hightower's dragon, one of several smaller mounts pressed into the war's chaos."
+    },
+    {
+      "id": "dra-018",
+      "name": "Shrykos",
+      "rating": 66,
+      "rationale": "A small dragon claimed by young Aegon the Younger, killed before it could ever truly grow."
+    },
+    {
+      "id": "dra-019",
+      "name": "Stormcloud",
+      "rating": 65,
+      "rationale": "The dragon of young Joffrey Velaryon's half-brother, lost tragically before adulthood."
+    },
+    {
+      "id": "dra-020",
+      "name": "Grey Ghost",
+      "rating": 70,
+      "rationale": "An elusive pale-grey wild dragon of the Vale, rarely seen and never successfully tamed."
+    }
+  ]
+}

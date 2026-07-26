@@ -3,6 +3,10 @@ import movies from "@/data/movies.json";
 import athletes from "@/data/athletes.json";
 import tvSeries from "@/data/tvSeries.json";
 import carBrands from "@/data/carBrands.json";
+import gotCharacters from "@/data/gotCharacters.json";
+import hotdDragons from "@/data/hotdDragons.json";
+import marvelHeroes from "@/data/marvelHeroes.json";
+import heritageClubs from "@/data/heritageClubs.json";
 
 import type { Category, CategoryFile, Entry, IconName } from "./types";
 import { readableOn } from "./color";
@@ -16,6 +20,10 @@ const ICONS: IconName[] = [
   "jersey-number",
   "tv-frame",
   "car-silhouette",
+  "sword",
+  "dragon",
+  "hero-mask",
+  "crest-shield",
 ];
 
 function isIconName(value: string): value is IconName {
@@ -78,6 +86,10 @@ export const CATEGORIES: Category[] = [
   athletes,
   tvSeries,
   carBrands,
+  gotCharacters,
+  hotdDragons,
+  marvelHeroes,
+  heritageClubs,
 ].map((file) => toCategory(file as CategoryFile));
 
 export function getCategory(id: string | undefined): Category | undefined {

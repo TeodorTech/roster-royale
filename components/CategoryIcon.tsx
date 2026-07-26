@@ -90,5 +90,61 @@ export function CategoryIcon({ name, className, accent = "currentColor" }: Props
           <path d="M9.4 8.4 9 12.5h6l-.5-4.1" />
         </svg>
       );
+
+    case "sword":
+      return (
+        <svg {...shared}>
+          {/* Blade */}
+          <path d="M12 2.4 14 4.4 12.9 15.2h-1.8L10 4.4 12 2.4Z" fill={accent} />
+          <path d="M12 4.6v9.4" />
+          {/* Crossguard and grip */}
+          <path d="M7.4 15.2h9.2" strokeWidth="1.9" />
+          <path d="M10.6 15.2v4.2h2.8v-4.2" fill="#F0E1BE" />
+          <circle cx="12" cy="20.6" r="1.2" fill="#17120F" />
+        </svg>
+      );
+
+    case "dragon":
+      return (
+        <svg {...shared}>
+          {/* Wing */}
+          <path
+            d="M12.4 12.6 18.8 6c.6 2.6.2 5-1.2 7.1l2.2-.4-3 3.3-3.9-.5"
+            fill={accent}
+          />
+          {/* Body, neck and tail */}
+          <path
+            d="M4 19.4c1.8-.2 3-.9 3.6-2.1.9-1.9.4-3.5 1.9-5 1.1-1.1 2.3-1.4 3.6-1.1l3.3-3.6.9 1.3-1.7 2.5c1 .9 1.5 1.9 1.5 3.1 0 2.4-2.1 4.1-4.6 4.5"
+            fill={accent}
+          />
+          {/* Head, horn and eye */}
+          <path d="M12.9 7.6 14.6 5l1.3.5-.9 2.6-1.9 1.8Z" fill={accent} />
+          <circle cx="13.7" cy="7.4" r="0.55" fill="#17120F" />
+          {/* Tail spikes */}
+          <path d="M4 19.4 2.6 20.7M4.9 18 3.7 19.5" />
+        </svg>
+      );
+
+    case "hero-mask":
+      return (
+        <svg {...shared}>
+          <path
+            d="M2.8 8.4c2.4-2.6 5.8-3.9 9.2-3.9s6.8 1.3 9.2 3.9c-1 3.4-2.9 5.4-5.6 5.4-1.6 0-2.5-1-3.6-1-1.1 0-2 1-3.6 1-2.7 0-4.6-2-5.6-5.4Z"
+            fill={accent}
+          />
+          <path d="M6.6 8c1 1.6 2.1 2.4 3.3 2.4s1.6-.6 2.1-1.3M17.4 8c-1 1.6-2.1 2.4-3.3 2.4" />
+        </svg>
+      );
+
+    case "crest-shield":
+      return (
+        <svg {...shared}>
+          <path
+            d="M12 2.6 19 5v6.2c0 4.6-2.9 8.1-7 10.2-4.1-2.1-7-5.6-7-10.2V5l7-2.4Z"
+            fill={accent}
+          />
+          <path d="M12 6.4v11.2M8.6 10.4 12 12l3.4-1.6" fill="none" />
+        </svg>
+      );
   }
 }

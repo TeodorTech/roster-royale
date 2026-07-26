@@ -72,7 +72,7 @@ export function Plate({
                 }
               />
               <span
-                className={`relative z-10 text-center font-extrabold uppercase leading-[1.1] tracking-tight text-ink ${nameSize(
+                className={`relative z-10 w-full min-w-0 text-balance break-words text-center font-extrabold uppercase leading-[1.1] tracking-tight text-ink ${nameSize(
                   entry.name,
                   size,
                 )}`}

@@ -22,7 +22,11 @@ export type IconName =
   | "popcorn"
   | "jersey-number"
   | "tv-frame"
-  | "car-silhouette";
+  | "car-silhouette"
+  | "sword"
+  | "dragon"
+  | "hero-mask"
+  | "crest-shield";
 
 /** A seed file after validation, with display colors derived for the dark board. */
 export type Category = {

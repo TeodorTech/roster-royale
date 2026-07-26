@@ -1,0 +1,189 @@
+{
+  "category": "gotCharacters",
+  "label": "Game of Thrones",
+  "icon": "sword",
+  "accentColor": "#6B0F1A",
+  "rubric": "Power & influence · Character arc · Fan popularity · Memorable moments",
+  "entries": [
+    {
+      "id": "got-001",
+      "name": "Tyrion Lannister",
+      "rating": 97,
+      "rationale": "The show's sharpest wit and moral center, carried almost single-handedly by Peter Dinklage's performance."
+    },
+    {
+      "id": "got-002",
+      "name": "Jon Snow",
+      "rating": 95,
+      "rationale": "The reluctant hero whose arc from bastard to king (and back) anchored the entire saga."
+    },
+    {
+      "id": "got-003",
+      "name": "Arya Stark",
+      "rating": 94,
+      "rationale": "A fan-favorite revenge arc that ended with her killing the Night King himself."
+    },
+    {
+      "id": "got-004",
+      "name": "Daenerys Targaryen",
+      "rating": 93,
+      "rationale": "Mother of Dragons whose rise and fall became the show's most debated storyline."
+    },
+    {
+      "id": "got-005",
+      "name": "Cersei Lannister",
+      "rating": 92,
+      "rationale": "One of television's great villains, ruthless and utterly convinced of her own righteousness."
+    },
+    {
+      "id": "got-006",
+      "name": "Eddard 'Ned' Stark",
+      "rating": 91,
+      "rationale": "His shocking season-one death redefined what audiences could expect from the genre."
+    },
+    {
+      "id": "got-007",
+      "name": "Jaime Lannister",
+      "rating": 90,
+      "rationale": "The Kingslayer's slow redemption arc is one of the show's most complete character journeys."
+    },
+    {
+      "id": "got-008",
+      "name": "Sandor 'The Hound' Clegane",
+      "rating": 90,
+      "rationale": "Brutal, funny, and unexpectedly tender — a fan favorite from start to finish."
+    },
+    {
+      "id": "got-009",
+      "name": "Tywin Lannister",
+      "rating": 89,
+      "rationale": "Cold, commanding, and the true power behind the Iron Throne for years."
+    },
+    {
+      "id": "got-010",
+      "name": "Petyr 'Littlefinger' Baelish",
+      "rating": 88,
+      "rationale": "The master manipulator whose schemes quietly shaped nearly every major plot turn."
+    },
+    {
+      "id": "got-011",
+      "name": "Oberyn Martell",
+      "rating": 88,
+      "rationale": "A single season was enough to make the Red Viper one of the most beloved characters ever."
+    },
+    {
+      "id": "got-012",
+      "name": "Brienne of Tarth",
+      "rating": 87,
+      "rationale": "A knight in every sense but title, and one of the show's most honorable figures."
+    },
+    {
+      "id": "got-013",
+      "name": "Varys",
+      "rating": 87,
+      "rationale": "The spider whose loyalty to 'the realm' made him impossible to fully trust or dismiss."
+    },
+    {
+      "id": "got-014",
+      "name": "Olenna Tyrell",
+      "rating": 86,
+      "rationale": "The Queen of Thorns delivered some of the show's best lines right up to her final scene."
+    },
+    {
+      "id": "got-015",
+      "name": "Ramsay Bolton",
+      "rating": 85,
+      "rationale": "A villain so cruel he became the character fans most wanted to see fall."
+    },
+    {
+      "id": "got-016",
+      "name": "Robb Stark",
+      "rating": 84,
+      "rationale": "The King in the North whose Red Wedding fate remains one of TV's most shocking moments."
+    },
+    {
+      "id": "got-017",
+      "name": "Joffrey Baratheon",
+      "rating": 84,
+      "rationale": "Petulant and sadistic, he became the most hated character on television for good reason."
+    },
+    {
+      "id": "got-018",
+      "name": "Theon Greyjoy",
+      "rating": 83,
+      "rationale": "A betrayal-to-redemption arc that put him through more suffering than almost anyone else."
+    },
+    {
+      "id": "got-019",
+      "name": "Khal Drogo",
+      "rating": 83,
+      "rationale": "Imposing and iconic despite a relatively short run in the story."
+    },
+    {
+      "id": "got-020",
+      "name": "Davos Seaworth",
+      "rating": 83,
+      "rationale": "The Onion Knight's quiet decency made him one of the show's most trusted moral compasses."
+    },
+    {
+      "id": "got-021",
+      "name": "Bronn",
+      "rating": 82,
+      "rationale": "The sellsword whose blunt pragmatism provided some of the sharpest comic relief in Westeros."
+    },
+    {
+      "id": "got-022",
+      "name": "Bran Stark",
+      "rating": 82,
+      "rationale": "From crippled boy to Three-Eyed Raven to, controversially, King of the Six Kingdoms."
+    },
+    {
+      "id": "got-023",
+      "name": "Catelyn Stark",
+      "rating": 81,
+      "rationale": "A fiercely protective mother whose choices set several of the war's tragedies in motion."
+    },
+    {
+      "id": "got-024",
+      "name": "Stannis Baratheon",
+      "rating": 80,
+      "rationale": "Rigid, humorless, and strangely compelling in his unwavering sense of duty."
+    },
+    {
+      "id": "got-025",
+      "name": "Samwell Tarly",
+      "rating": 80,
+      "rationale": "The unlikely scholar who ended up shaping the future of the realm from the Citadel."
+    },
+    {
+      "id": "got-026",
+      "name": "Melisandre",
+      "rating": 79,
+      "rationale": "The Red Woman's prophecies and fire magic kept the story's supernatural stakes alive."
+    },
+    {
+      "id": "got-027",
+      "name": "Robert Baratheon",
+      "rating": 78,
+      "rationale": "A once-great warrior gone soft on the throne, setting the whole series in motion."
+    },
+    {
+      "id": "got-028",
+      "name": "Margaery Tyrell",
+      "rating": 78,
+      "rationale": "A political operator as sharp as any Lannister, undone by an explosive finale."
+    },
+    {
+      "id": "got-029",
+      "name": "Grey Worm",
+      "rating": 75,
+      "rationale": "The Unsullied commander whose loyalty to Daenerys never wavered."
+    },
+    {
+      "id": "got-030",
+      "name": "Missandei",
+      "rating": 74,
+      "rationale": "Advisor and translator whose death became one of the final season's most gutting moments."
+    }
+  ]
+}
