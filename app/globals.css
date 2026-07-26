@@ -1,26 +1,350 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ---------------------------------------------------------------------------
+   Roster Royale looks like the physical Guess Who set sitting on a table.
+
+   Colour carries two separate jobs and never mixes them:
+     · red and blue are the two players, constant across all five categories
+     · the category accent is the icon and one stripe, nothing more
+   That split is what makes five categories read as one product.
+   --------------------------------------------------------------------------- */
+
+@theme {
+  --color-ink: #17120f;
+  --color-table: #3b2a22;
+  --color-table-deep: #2a1d17;
+
+  --color-red: #d93a2b;
+  --color-red-deep: #96200f;
+  --color-blue: #1e5ac4;
+  --color-blue-deep: #123a87;
+
+  --color-plate: #f0e1be;
+  --color-plate-shade: #d9c69e;
+  --color-plate-deep: #b8a478;
+  --color-brass: #f0a81c;
+
+  --font-display: var(--font-bowlby), "Arial Black", sans-serif;
+  --font-body: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+
+  /* The plastic snap: overshoot on the way in, no bounce on the way out. */
+  --ease-snap: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    background: var(--color-table-deep);
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    /* A dark walnut table: warm pool of light in the middle, grain across it. */
+    background-color: var(--color-table);
+    background-image:
+      radial-gradient(ellipse 110% 75% at 50% 0%, rgb(255 255 255 / 0.09), transparent 65%),
+      repeating-linear-gradient(
+        92deg,
+        rgb(0 0 0 / 0.05) 0px,
+        rgb(0 0 0 / 0.05) 1px,
+        transparent 1px,
+        transparent 7px
+      ),
+      linear-gradient(180deg, var(--color-table) 0%, var(--color-table-deep) 100%);
+    background-attachment: fixed;
+  }
+
+  /* One focus treatment everywhere, in brass so it never reads as a player colour. */
+  :focus-visible {
+    outline: 3px solid var(--color-brass);
+    outline-offset: 3px;
+    border-radius: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* --- injection-moulded plastic -------------------------------------------- */
+
+/* Thick black outline plus a moulded edge — the shared vocabulary for every
+   physical-looking surface in the app. */
+.moulded {
+  border: 3px solid var(--color-ink);
+  box-shadow:
+    inset 0 3px 0 rgb(255 255 255 / 0.28),
+    inset 0 -5px 0 rgb(0 0 0 / 0.24),
+    0 4px 0 var(--color-ink),
+    0 9px 16px rgb(0 0 0 / 0.42);
+}
+
+.moulded-sunken {
+  border: 3px solid var(--color-ink);
+  box-shadow:
+    inset 0 4px 8px rgb(0 0 0 / 0.45),
+    inset 0 -2px 0 rgb(255 255 255 / 0.12);
+}
+
+/* --- the flip window ------------------------------------------------------ */
+
+/* The wrapper owns the perspective so each window flips on its own axis rather
+   than sharing one vanishing point across the whole grid. */
+.window {
+  perspective: 900px;
+  aspect-ratio: 3 / 4;
+}
+
+.window-hinge {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 620ms var(--ease-snap);
+}
+
+/* Revealed: the panel turns over on its horizontal centre line, so the rating
+   on the reverse lands upright. */
+.window-hinge[data-state="revealed"] {
+  transform: rotateX(180deg);
+}
+
+/* Taken: the window drops out of the shared pool on its bottom hinge — the
+   gesture of flipping a panel down in the real game. */
+.window-hinge[data-state="taken"] {
+  transform-origin: bottom center;
+  transform: rotateX(-96deg) scale(0.94);
+  opacity: 0;
+  transition:
+    transform 340ms cubic-bezier(0.5, 0, 0.75, 0),
+    opacity 340ms ease-in 120ms;
+}
+
+.window-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.window-face--back {
+  transform: rotateX(180deg);
+}
+
+/* The card-stock plate itself. */
+.plate {
+  background: linear-gradient(
+    180deg,
+    #f7ecd2 0%,
+    var(--color-plate) 42%,
+    var(--color-plate-shade) 100%
+  );
+}
+
+/* Cheap paper tooth — keeps the cream from reading as flat #hex. */
+.plate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgb(120 90 40 / 0.05) 0px,
+    rgb(120 90 40 / 0.05) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* --- the two trays -------------------------------------------------------- */
+
+.tray {
+  border-radius: 14px;
+  transition:
+    transform 260ms var(--ease-snap),
+    box-shadow 260ms ease;
+}
+
+.tray[data-player="0"] {
+  background: linear-gradient(180deg, var(--color-red) 0%, var(--color-red-deep) 100%);
+}
+
+.tray[data-player="1"] {
+  background: linear-gradient(180deg, var(--color-blue) 0%, var(--color-blue-deep) 100%);
+}
+
+/* Whoever is on the clock tips their tray up toward the table edge. */
+.tray[data-active="true"] {
+  transform: translateY(-6px);
+  box-shadow:
+    inset 0 3px 0 rgb(255 255 255 / 0.3),
+    inset 0 -5px 0 rgb(0 0 0 / 0.25),
+    0 6px 0 var(--color-ink),
+    0 14px 26px rgb(0 0 0 / 0.5),
+    0 0 0 4px var(--color-brass);
+}
+
+/* Empty roster slots are moulded recesses in the tray, not outlined boxes. */
+.slot {
+  aspect-ratio: 3 / 4;
+  border-radius: 7px;
+  background: rgb(0 0 0 / 0.3);
+  box-shadow:
+    inset 0 3px 7px rgb(0 0 0 / 0.5),
+    inset 0 -1px 0 rgb(255 255 255 / 0.1);
+}
+
+/* The moulded score window on each tray. */
+.readout {
+  background: linear-gradient(180deg, #1b1512 0%, #322722 100%);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- the card on the table ------------------------------------------------ */
+
+/* Each name is lifted off the face-down stack, so it arrives on its bottom edge
+   rather than fading in. */
+@keyframes deal-in {
+  from {
+    transform: rotateX(-82deg) translateY(14px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: rotateX(0) translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.deal-in {
+  transform-origin: bottom center;
+  animation: deal-in 420ms var(--ease-snap) both;
+}
+
+/* The undealt remainder, drawn as offset card edges behind the live card. */
+.stack-edge {
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--color-ink);
+  border-radius: 7px;
+  background: linear-gradient(180deg, var(--color-plate-shade), var(--color-plate-deep));
+}
+
+/* --- shelf (category select) --------------------------------------------- */
+
+.box-lid {
+  transition:
+    transform 200ms var(--ease-snap),
+    box-shadow 200ms ease;
+}
+
+.box-lid:hover,
+.box-lid:focus-visible {
+  transform: translateY(-7px) rotate(-0.6deg);
+}
+
+.box-lid:active {
+  transform: translateY(-2px);
+}
+
+/* --- reveal choreography ------------------------------------------------- */
+
+/* The losing tray's windows slam shut in a wave once the winner is known —
+   the gesture that ends a real game. */
+@keyframes slam-shut {
+  0% {
+    transform: rotateX(180deg) translateY(0);
+  }
+  55% {
+    transform: rotateX(180deg) translateY(-7px);
+  }
+  100% {
+    transform: rotateX(180deg) translateY(0) rotateZ(0.8deg);
+  }
+}
+
+.window-hinge[data-slam="true"] {
+  animation: slam-shut 420ms var(--ease-snap) both;
+  animation-delay: var(--slam-delay, 0ms);
+}
+
+@keyframes crown-in {
+  from {
+    transform: scale(0.86) rotate(-2deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(-1deg);
+    opacity: 1;
+  }
+}
+
+.crown {
+  animation: crown-in 460ms var(--ease-snap) both;
+}
+
+@keyframes tick-up {
+  from {
+    transform: translateY(-38%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.tick {
+  animation: tick-up 260ms var(--ease-snap);
+}
+
+/* --- reduced motion ------------------------------------------------------ */
+
+/* The reveal is the whole point, so it still happens — it cross-fades instead
+   of rotating in 3D, and nothing slides or bounces. */
+@media (prefers-reduced-motion: reduce) {
+  .window-hinge,
+  .window-hinge[data-state="revealed"],
+  .window-hinge[data-state="taken"] {
+    transform: none !important;
+    transition: opacity 200ms ease;
+  }
+
+  .window-face {
+    backface-visibility: visible;
+    transition: opacity 200ms ease;
+  }
+
+  .window-face--back {
+    transform: none;
+  }
+
+  /* With no rotation, the two faces have to be swapped by opacity instead. */
+  .window-hinge[data-state="upright"] .window-face--back,
+  .window-hinge[data-state="taken"] .window-face--back {
+    opacity: 0;
+  }
+
+  .window-hinge[data-state="revealed"] .window-face--front {
+    opacity: 0;
+  }
+
+  .window-hinge[data-state="taken"] {
+    opacity: 0;
+  }
+
+  .tray[data-active="true"] {
+    transform: none;
+  }
+
+  .box-lid:hover,
+  .box-lid:focus-visible,
+  .box-lid:active {
+    transform: none;
+  }
+
+  .crown,
+  .tick,
+  .window-hinge[data-slam="true"] {
+    animation: none;
+  }
+
+  /* The card still needs to announce itself, just without the 3D lift. */
+  .deal-in {
+    animation: none;
+  }
 }

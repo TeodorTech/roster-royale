@@ -1,65 +1,67 @@
-import Image from "next/image";
+import Link from "next/link";
 
+import { CATEGORIES } from "@/lib/categories";
+import { CategoryIcon } from "@/components/CategoryIcon";
+import { Wordmark } from "@/components/Wordmark";
+import { POOL_SIZE, ROSTER_SIZE } from "@/lib/draft";
+
+/**
+ * The shelf. Five boxed games, one product, one box per category.
+ *
+ * Seeds are minted on the client at draft time rather than here, so this page
+ * stays fully static and two people opening it never land on the same pool.
+ */
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="mx-auto w-full max-w-5xl px-5 pt-10 sm:pt-16">
+      <header className="text-center">
+        <Wordmark className="mx-auto" />
+        <p className="mx-auto mt-5 max-w-md text-balance text-sm leading-relaxed text-plate/70">
+          Two players. Draft {ROSTER_SIZE} names each from a pool of {POOL_SIZE}, with every rating
+          hidden. Then flip them over.
+        </p>
+      </header>
+
+      <h2 className="mb-4 mt-12 text-center font-display text-[11px] uppercase tracking-[0.2em] text-brass">
+        Pick a category
+      </h2>
+
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+        {CATEGORIES.map((category) => (
+          <li key={category.id} className="contents">
+            <Link
+              href={`/play?category=${category.id}`}
+              className="box-lid moulded plate relative flex flex-col justify-between overflow-hidden rounded-lg p-4 sm:p-5"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+              {/* The one place the category accent gets to be loud. */}
+              <span
+                className="absolute inset-x-0 top-0 h-2 border-b-[3px] border-ink"
+                style={{ background: category.accent }}
+                aria-hidden
+              />
+
+              <CategoryIcon
+                name={category.icon}
+                accent={category.accent}
+                className="relative z-10 mt-3 h-10 w-10 sm:h-12 sm:w-12"
+              />
+
+              <div className="relative z-10 mt-6">
+                <h3 className="font-display text-base leading-none text-ink sm:text-lg">
+                  {category.label}
+                </h3>
+                <p className="mt-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/45">
+                  {category.entries.length} names
+                </p>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      <p className="mt-8 text-center text-[11px] text-plate/40">
+        Pass-and-play on one device. Nothing to install, no account.
+      </p>
+    </main>
   );
 }
