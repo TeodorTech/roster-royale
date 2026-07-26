@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bowlby_One_SC, Nunito } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 /* Bowlby One SC is a stamped, embossed display face — a toy logo rather than a
@@ -36,6 +37,7 @@ export default function RootLayout({
           For entertainment purposes only. Ratings reflect the platform&rsquo;s own opinion, not the
           individuals named, who are not affiliated with or endorsing this product.
         </footer>
+        <Analytics />
       </body>
     </html>
   );
