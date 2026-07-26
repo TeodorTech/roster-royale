@@ -53,28 +53,34 @@ export function Plate({
       data-slam={slam ? "true" : undefined}
       style={slam ? ({ "--slam-delay": `${slamDelay}ms` } as React.CSSProperties) : undefined}
     >
-      {/* Front: the name plate */}
+      {/* Front: the name plate. Emptied out (not just hidden) once revealed —
+          relying on backface-visibility alone to hide it leaks on some mobile
+          browsers, so the name simply isn't in the DOM to leak. */}
       <div className="window-face window-face--front">
         <div className="plate moulded flex h-full w-full flex-col items-center justify-center gap-1 overflow-hidden rounded-[7px] px-1.5">
-          <CategoryIcon
-            name={icon}
-            accent={accent}
-            className={
-              size === "tray"
-                ? "h-5 w-5 shrink-0"
-                : size === "stage"
-                  ? "h-12 w-12 shrink-0 sm:h-16 sm:w-16"
-                  : "h-7 w-7 shrink-0 sm:h-9 sm:w-9"
-            }
-          />
-          <span
-            className={`relative z-10 text-center font-extrabold uppercase leading-[1.1] tracking-tight text-ink ${nameSize(
-              entry.name,
-              size,
-            )}`}
-          >
-            {entry.name}
-          </span>
+          {revealed ? null : (
+            <>
+              <CategoryIcon
+                name={icon}
+                accent={accent}
+                className={
+                  size === "tray"
+                    ? "h-5 w-5 shrink-0"
+                    : size === "stage"
+                      ? "h-12 w-12 shrink-0 sm:h-16 sm:w-16"
+                      : "h-7 w-7 shrink-0 sm:h-9 sm:w-9"
+                }
+              />
+              <span
+                className={`relative z-10 text-center font-extrabold uppercase leading-[1.1] tracking-tight text-ink ${nameSize(
+                  entry.name,
+                  size,
+                )}`}
+              >
+                {entry.name}
+              </span>
+            </>
+          )}
         </div>
       </div>
 
