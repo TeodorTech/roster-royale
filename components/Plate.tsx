@@ -54,61 +54,65 @@ export function Plate({
       style={slam ? ({ "--slam-delay": `${slamDelay}ms` } as React.CSSProperties) : undefined}
     >
       {/* Front: the name plate */}
-      <div className="window-face window-face--front plate moulded flex flex-col items-center justify-center gap-1 px-1.5">
-        <CategoryIcon
-          name={icon}
-          accent={accent}
-          className={
-            size === "tray"
-              ? "h-5 w-5 shrink-0"
-              : size === "stage"
-                ? "h-12 w-12 shrink-0 sm:h-16 sm:w-16"
-                : "h-7 w-7 shrink-0 sm:h-9 sm:w-9"
-          }
-        />
-        <span
-          className={`relative z-10 text-center font-extrabold uppercase leading-[1.1] tracking-tight text-ink ${nameSize(
-            entry.name,
-            size,
-          )}`}
-        >
-          {entry.name}
-        </span>
+      <div className="window-face window-face--front">
+        <div className="plate moulded flex h-full w-full flex-col items-center justify-center gap-1 overflow-hidden rounded-[7px] px-1.5">
+          <CategoryIcon
+            name={icon}
+            accent={accent}
+            className={
+              size === "tray"
+                ? "h-5 w-5 shrink-0"
+                : size === "stage"
+                  ? "h-12 w-12 shrink-0 sm:h-16 sm:w-16"
+                  : "h-7 w-7 shrink-0 sm:h-9 sm:w-9"
+            }
+          />
+          <span
+            className={`relative z-10 text-center font-extrabold uppercase leading-[1.1] tracking-tight text-ink ${nameSize(
+              entry.name,
+              size,
+            )}`}
+          >
+            {entry.name}
+          </span>
+        </div>
       </div>
 
       {/* Reverse: the score. Solid player colour, so the whole board splits into
           red and blue as the reveal runs. */}
-      <div
-        className="window-face window-face--back moulded flex flex-col items-center justify-center"
-        style={{
-          background:
-            player === 1
-              ? "linear-gradient(180deg,var(--color-blue) 0%,var(--color-blue-deep) 100%)"
-              : "linear-gradient(180deg,var(--color-red) 0%,var(--color-red-deep) 100%)",
-        }}
-      >
-        {revealed ? (
-          <>
-            <span
-              className={`font-display leading-none text-plate ${
-                size === "tray" ? "text-2xl" : size === "stage" ? "text-6xl" : "text-4xl sm:text-5xl"
-              }`}
-              style={{ textShadow: "0 2px 0 rgb(0 0 0 / 0.35)" }}
-            >
-              {entry.rating}
-            </span>
-            {/* What it cost, right next to what it was worth. */}
-            {price !== null ? (
+      <div className="window-face window-face--back">
+        <div
+          className="moulded flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-[7px]"
+          style={{
+            background:
+              player === 1
+                ? "linear-gradient(180deg,var(--color-blue) 0%,var(--color-blue-deep) 100%)"
+                : "linear-gradient(180deg,var(--color-red) 0%,var(--color-red-deep) 100%)",
+          }}
+        >
+          {revealed ? (
+            <>
               <span
-                className={`mt-1 font-display uppercase leading-none tracking-wider text-brass ${
-                  size === "tray" ? "text-[8px]" : "text-[10px]"
+                className={`font-display leading-none text-plate ${
+                  size === "tray" ? "text-2xl" : size === "stage" ? "text-6xl" : "text-4xl sm:text-5xl"
                 }`}
+                style={{ textShadow: "0 2px 0 rgb(0 0 0 / 0.35)" }}
               >
-                paid {price}
+                {entry.rating}
               </span>
-            ) : null}
-          </>
-        ) : null}
+              {/* What it cost, right next to what it was worth. */}
+              {price !== null ? (
+                <span
+                  className={`mt-1 font-display uppercase leading-none tracking-wider text-brass ${
+                    size === "tray" ? "text-[8px]" : "text-[10px]"
+                  }`}
+                >
+                  paid {price}
+                </span>
+              ) : null}
+            </>
+          ) : null}
+        </div>
       </div>
     </div>
   );

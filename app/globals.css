@@ -116,20 +116,24 @@
     opacity 340ms ease-in 120ms;
 }
 
+/* backface-visibility lives here alone — combining it with overflow/border-radius
+   on the same 3D-rotated element is a known Chromium/WebKit bug where the
+   "hidden" face still paints through. Clipping instead happens on the static
+   inner wrapper each face renders (see Plate.tsx). */
 .window-face {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
-  border-radius: 7px;
-  overflow: hidden;
 }
 
 .window-face--back {
   transform: rotateX(180deg);
 }
 
-/* The card-stock plate itself. */
+/* The card-stock plate itself. Positioned so its ::after texture (below) anchors
+   to it directly, now that it sits inside window-face rather than being it. */
 .plate {
+  position: relative;
   background: linear-gradient(
     180deg,
     #f7ecd2 0%,

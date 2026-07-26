@@ -2,7 +2,7 @@
 
 import type { Category, Entry, PlayerId } from "@/lib/types";
 import { Plate } from "./Plate";
-import { CoinIcon, CoinTag } from "./Coins";
+import { CoinIcon } from "./Coins";
 
 type Props = {
   card: Entry;
