@@ -1,108 +1,160 @@
-# Roster Royale — Product & Business Plan
-*A draft-and-reveal prediction game, built from a live TikTok-style betting trend*
+# Roster Royale — Product & Business State
 
-## 1. Executive Summary
+*Living document. Last updated 2026-08-04.*
 
-Roster Royale turns an existing, organic social trend — friends putting up $20 each and drafting rosters (of actors, movies, athletes, and more) to bet on — into a lightweight, replayable web game. Two players draft from a shared pool of real, well-known names with no visible ratings, then the platform reveals hidden "power scores" and crowns a winner. No real money is handled by the app; it's built purely for bragging rights, designed to scale from a private friend-group tool into a public product.
+This replaces the original pre-build plan. That document was written before a line of code existed and has drifted from what shipped in several load-bearing ways — most importantly, **the game is an auction, not a snake draft**. Sections 6 (legal), 8 (visual theme) and 12 (risks) survived contact with reality largely intact and are carried forward here.
 
-**Closest existing comparable:** Hollywood Stock Exchange (HSX) has run a legal, real-name, virtual-currency celebrity/movie prediction market for over 20 years. Roster Royale borrows its core legitimacy (real names, no real money, entertainment-only framing) but replaces HSX's stock-trading model with a faster, more social draft-and-reveal format suited to short sessions between two people.
+---
 
-## 2. Core Concept
+## 1. Where things stand
 
-- Two players. Each builds a roster of 4 from a shared pool of 8 (or more, at scale).
-- Snake draft order (P1, P2, P2, P1, P1, P2, P2, P1) so no duplicates and no first-pick advantage.
-- Ratings are **hidden during the draft** — players are drafting on vibes/fame, not known values.
-- After the draft, ratings are revealed and summed. Highest total wins bragging rights (and, off-platform, the $20-a-head pot the friends already agreed to).
-- Same mechanic reskins across categories: **Actors, Movies, Athletes, TV Series, Car Brands** at launch.
+Roster Royale is live, free, and has no backend. It turns an organic social trend — friends putting up $20 each and drafting rosters to bet on — into a 3-minute web game. Real names, hidden ratings, no real money in-app.
 
-## 3. Target Users
+**Status:** public for roughly one week as of this update. First traffic data in §7.
 
-- **Phase 1:** You and your friend group — validate the loop is fun repeatedly, across categories.
-- **Phase 2+:** Public users — any two people who want a 3-minute, low-stakes competitive game to play on a call, in person, or async. Positioning: "fantasy sports, but for pop culture, and it takes 3 minutes."
+**Closest comparable:** Hollywood Stock Exchange, which has run a legal real-name virtual-currency prediction market for 20+ years. We borrow its legitimacy framing and replace stock-trading with draft-and-reveal.
 
-## 4. Gameplay Loop (per round)
+## 2. What actually ships
 
-1. Pick a category (Actors / Movies / Athletes / TV Series / Car Brands).
-2. System pulls a random pool (e.g., 8 names) from that category's seed database.
-3. Players snake-draft until each has a full roster (4 each).
-4. Reveal screen: each pick's hidden rating flips over one at a time (this is the signature moment — see Section 8).
-5. Totals tally, winner declared, with a short "why" (best pick, biggest bust, closest matchup).
-6. Option to share a results card, rematch, or switch category.
+### The two modes
 
-## 5. Categories & Rating Rubrics
+**Duo (pass-and-play, the original game).** The app is the *scorekeeper of an auction, not the auctioneer*. Eight names surface one at a time, face-up. The two humans bid at each other out loud; whoever wins taps their own button with what it cost. Each starts with a purse of **20 coins**. Nothing enforces turn order — the snake order `[0,1,1,0,0,1,1,0]` is shown as advisory ("Alex opens") and never restricts which button works. The only hard limits are a roster of four and the coins actually in hand.
 
-Each category needs its own consistent, documented rubric so scores feel fair rather than arbitrary — this also gives you a defensible answer when someone asks "why is X rated higher than Y."
+**Solo (you vs the House).** The House is not an AI — it is *the complement of the player's choices*. Each card is Take or Pass; passed cards go to the House. There is nothing to balance and no cheating-by-seeing-ratings problem. Because the pool is exactly two rosters, the House's roster cap is what forces the endgame: pass four times and every remaining card must be taken. **No coins solo** — the scarce resource is the four passes.
 
-| Category | Rubric (out of 100) |
+### Shared skeleton
+
+- Pool of **8**, roster of **4** each, ratings 0–100 hidden until every card is assigned.
+- Reveal cascade: timed 3D flips ordered for suspense, not chronology — players alternate, and the pick furthest from the pool's mean flips **last**, because that is the one most likely to decide it.
+- Tiebreaks in order: **points → coins in hand → best single pick → draw**. Solo reports zero coins, so it can never decide on them.
+- Awards. Duo: Top pick / Best value / Overpaid. Solo: Your best call / The one you let go, plus a distance-from-perfect line.
+
+### Why solo scores differently
+
+Rating-per-coin ranks the duo awards, and solo pays nothing for anything — so there `bestValue` always equals `topPick` and nothing can ever be an overpay. Reusing `awardsFor` solo renders the same card twice. `soloAwardsFor` exists for this reason and there is an assertion pinning the degeneracy so nobody "simplifies" it back.
+
+The solo retention hook is **off-perfect**: *"Perfect was 352 · you were 0 off · 4 of the best 4."* Beating the House alone is close to a coin toss, so "you won" says very little; distance from a flawless round is the score with a ceiling worth chasing.
+
+## 3. Categories
+
+Nine playable boxes plus one locked. Adding a category is an import plus one array entry — no other code changes.
+
+| Category | Names | Icon |
+|---|---|---|
+| Actors | 50 | film-reel |
+| Movies | 50 | popcorn |
+| TV Series | 30 | tv-frame |
+| Athletes | 50 | jersey-number |
+| Game of Thrones | 30 | sword |
+| House of the Dragons | 20 | dragon |
+| Superheroes | 30 | hero-mask |
+| Car Brands | 30 | car-silhouette |
+| Designer Brands | 50 | handbag |
+| *Custom Game* | *locked* | *custom-spark* |
+
+Each seed file carries a documented **rubric** — the defensible answer to "why is X rated higher than Y". Entries are `{id, name, rating, rationale}`; the rationale is what the reveal screen reads out.
+
+**Retired:** Marvel Superheroes and Sports Clubs, folded into / replaced by the cross-publisher Superheroes box. The `crest-shield` icon is still in the whitelist, currently unused.
+
+**Refresh cadence:** Athletes goes stale fastest (ratings reflect mid-2026 standing). Actors / Movies / TV Series are stable. Car Brands and Designer Brands shift slowest.
+
+**Grid note:** 9 playable + 1 locked = **10 tiles**, which is three full rows of three plus an orphan at `sm:` and up. It was flush at 9. One more category makes it 11; moving Custom out of the grid makes it 9 again.
+
+## 4. Architecture
+
+Next.js 16 App Router on Vercel. **No backend, no database, no accounts, no network calls.** Everything is static JSON bundled into the app plus localStorage.
+
+**Routes:** `/` (static shelf) · `/play?category=&mode=&seed=` (dynamic) · `/custom` (static, coming-soon).
+
+**The landing page must stay a server component.** A mode chooser that rewrites tile hrefs would put a hydration flicker on the one button that matters, so mode rides the URL instead — and deliberately is *not* sticky in localStorage, because a stale sticky `duo` would sabotage the exact funnel solo exists to fix.
+
+**Logic is decoupled from UI.** `lib/draft.ts` is a pure reducer; `lib/score.ts` is pure functions. `lib/logic.check.ts` holds **66 assertions** run by `npm run check` (tsx, no test framework). This is the gate — the solo forcing rules were proved in Node before a pixel existed.
+
+**Load-bearing invariants** (each has an assertion):
+- `picks.length` is the card cursor. Exactly one code path appends to `picks`, which is why solo's Pass is `ASSIGN {player: HOUSE}` rather than a new action, and why undo works unchanged in both modes.
+- `POOL_SIZE === ROSTER_SIZE * 2`. Solo's forcing rule depends on it; a future `POOL_SIZE = 10` would silently hang a solo round forever.
+- Solo prices are forced to 0 **in the reducer**, not trusted from the caller.
+
+**localStorage keys:** `roster-royale.series.v1` (duo tally + names), `roster-royale.solo.v1` (played/won/streak/best), `roster-royale.muted.v1`. Solo results deliberately never touch the duo tally — that tally is a score between two named humans and folding House losses into it would corrupt a real night's game.
+
+**Design system:** Tailwind v4, configured entirely in CSS via `@theme` in `globals.css` (no config file). Bowlby One SC display / Nunito body. The governing rule: **red is always player 1 and blue always player 2, in every category** — the category accent is only ever the icon plus one stripe, and brass is reserved for focus, locked/paid state, and scores.
+
+## 5. Visual theme — and the signature moment
+
+**Theme: *Guess Who*.** Moulded plastic panels with thick black outlines on a dark walnut table, cream card-stock plates, red vs blue trays, panels that flip on hinges. Retro-plastic, not slick SaaS. Lean in rather than softening toward generic "card game".
+
+No photographs of named people anywhere — the category icon stands in for the face, which is also the whole reason the likeness question never comes up.
+
+**The signature moment** is the reveal: each drafted panel physically flips (CSS 3D) to show its hidden rating, one at a time, biggest surprise last. `prefers-reduced-motion` swaps rotation for cross-fades throughout. The rating is absent from the DOM until revealed, so it can't be read in devtools mid-draft.
+
+## 6. Legal & IP
+
+*(Not legal advice — flagged for your own judgment or a lawyer's before wide public launch.)*
+
+- **No real money in-app.** This is the single thing keeping this closer to fantasy sports than to a sportsbook. Keep it that way as long as possible.
+- **Real names are standard practice** in this genre and generally treated as commentary/entertainment rather than an endorsement claim.
+- **No photos of named individuals — a standing constraint, not a launch-day shortcut.** If avatars ever arrive, stylized/abstract only.
+- Footer disclaimer ships on every page: *"For entertainment purposes only. Ratings reflect the platform's own opinion, not the individuals named, who are not affiliated with or endorsing this product."*
+- Car Brands and Designer Brands are companies/trademarks, so publicity rights don't apply — but avoid brand logos as visual assets without checking trademark guidelines. Both seed files carry this note.
+
+## 7. Traffic, and what we can measure
+
+**First week live:** ~100 landing views, ~20 reaching `/play` — **20% landing→play**.
+
+Read carefully: for a free game with no signup and one click to play, 40–60% is normal, so 20% is low. **But 20/100 has a 95% confidence interval of roughly 13–29%.** You cannot distinguish 20% from 28% on this data. Do not A/B test at this volume; fix structural leaks that are visible in the code and wait for a real sample.
+
+**The three leaks addressed so far:**
+1. *"Two players."* was the opening sentence and the game genuinely required two people — disqualifying most visitors, who arrive alone on a phone. Fixed by solo mode plus a rewritten hero.
+2. No start button — the CTA was a 10-way category decision. Fixed by a primary "Start a game" button that opens a solo round in one tap.
+3. Landing copy described a snake draft the app never shipped.
+
+**Instrumentation.** Vercel Web Analytics, pageviews plus four custom events, all tagged with category and mode:
+
+| Event | Fires when |
 |---|---|
-| **Actors** | Box office draw (career + recent) · Critical prestige/awards · Current cultural buzz |
-| **Movies** | Critical acclaim · Genre/cultural influence · Rewatchability & fan devotion · Commercial performance |
-| **Athletes** | Current form/ranking · Career achievements · Marketability/fame · Big-moment reputation |
-| **TV Series** | Critical acclaim · Cultural impact & longevity · Fan devotion/rewatchability · Awards/prestige |
-| **Car Brands** | Brand prestige & heritage · Performance/engineering reputation · Cultural cachet & desirability · Reliability/value reputation |
+| `draft_started` | first card assigned — the real "someone played" signal |
+| `reveal_reached` | "Flip them over" pressed |
+| `game_finished` | result banked (guarded once per seed) |
+| `rematch` | play again |
 
-Ratings should be regenerated/refreshed periodically for Athletes especially, since current form changes fast; Actors, Movies, and TV Series are far more stable and need less frequent updates; Car Brands shift slowest of all (new model years, reliability data).
+The landing page is deliberately **not** instrumented — click events there would duplicate pageviews and would force the static page into a client component. If CTA-level attribution is wanted later, a `?from=cta` param is the zero-JS way to get it.
 
-## 6. Legal & IP Considerations
-*(Not legal advice — flagging for your own judgment or a lawyer's, especially before wide public launch)*
+**The number to watch** is `draft_started` ÷ `/play` pageviews. That distinguishes a bounce from a game, and it was invisible before.
 
-- **No real money in-app** removes the biggest regulatory risk (gambling/money-transmitter licensing). Keep it that way for as long as possible — it's the single thing that keeps this closer to "fantasy sports" than "sportsbook."
-- **Using real names is standard practice** in this genre (fantasy sports, HSX, prediction pools) and is generally treated as commentary/entertainment rather than an endorsement claim — but:
-- **No avatars/images for now** — going text-only for launch sidesteps the trickiest part of this entirely (publicity/likeness rights for photos of named individuals). If avatars get added later, stick to stylized/abstract ones (initials, color, icon) rather than any photo or photo-realistic AI-generated likeness.
-- Add a simple disclaimer somewhere in the footer: *"For entertainment purposes only. Ratings reflect the platform's own opinion, not the individuals named, who are not affiliated with or endorsing this product."*
-- Car Brands are companies/trademarks, not individuals, so publicity rights don't apply there — but avoid using brand logos as visual assets without checking trademark-use guidelines if images are ever added.
+## 8. Success metrics
 
-## 7. Feature Scope by Phase
+No revenue targets — there is no monetization yet.
 
-**Phase 1 — MVP (matches your current "same-device pass-and-play" answer)**
-- No accounts required. Fully client-side Next.js app, deployed on Vercel.
-- 5 categories live, seed database of 50 entries each for Actors/Movies/Athletes and 30 entries each for TV Series/Car Brands, shipped as JSON files inside the app.
-- Draft + hidden-rating reveal flow, exactly as prototyped in this chat.
-- Shareable results (image/link) so friends outside the room can see the outcome.
+- **Landing→play conversion.** Baseline 20% on n=100. Treat anything under ~50 sessions as noise.
+- **Play→finish.** `draft_started` → `game_finished`. Brand new; no baseline yet.
+- **Solo vs duo split.** Tells us whether the solo bet paid off, and whether "Play a friend" converts solo players into two-player sessions.
+- **Return usage / rematch rate.** Does it survive the novelty round?
+- Category mix per session.
 
-**Phase 2 — Public-ready**
-- Optional accounts (to save match history, not required to play).
-- Public/global leaderboards per category.
-- "Leagues" — a persistent group of friends who track a running series (like your 2–1 tonight).
-- Rooms with a shareable code for remote (not just same-device) play, if demand shows up.
+## 9. What's built vs. what isn't
 
-**Phase 3 — Scale & credibility**
-- Move ratings from single-author opinion toward blended real-world data (box office APIs, RT/Metacritic-style scores for Movies/TV Series, sports-record APIs for Athletes) especially where "current form" actually matters.
-- Community submissions/voting for new names to add to each category's pool.
-- Possible native/mobile wrapper if usage justifies it.
+**Built:** both modes · 9 categories · reveal cascade · tiebreaks · awards · running series tally · solo streak record · seeded shareable pool codes · WebAudio sound (synthesized, no audio files ship) · reduced-motion support · funnel analytics · `/custom` coming-soon page.
 
-## 8. Visual Theme & The Signature Moment
+**Not built, and previously promised:**
+- **Shareable result cards.** Called the signature social loop in the original plan; only the seed code is printed under the results. Probably the highest-value unbuilt thing — it's the only organic acquisition channel in the design.
+- **No OG image and no `metadataBase`.** Every link shared to a social platform currently previews as bare text. Cheap to fix, directly upstream of the traffic problem.
+- **README is still create-next-app boilerplate.**
+- Accounts, leaderboards, leagues, remote rooms — all Phase 2, none started, none needed yet.
+- **The paid Custom Game box.** `/custom` describes a generator that turns any category name into a rated, draftable box. Roadmap on that page: generator and rating quality in progress; accounts & payment not started; no release date. **There is no email capture** — the page is currently a dead end for anyone it interests.
 
-**Theme: *Guess Who*.** The app should feel like the physical board game — a grid of flip-panel windows, bold primary colors (red frame, cream/yellow panel backgrounds), thick black outlines, a slightly retro-plastic feel rather than a slick modern SaaS look. This is a strong, specific reference — lean into it rather than softening it into generic "card game" styling.
+## 10. Open risks
 
-- **Draft screen:** the shared pool renders as a grid of *Guess Who*–style flip windows, one per name. With no photos in play, each window shows the name on a card-stock plate with a small category icon standing in for the face (film reel/clapperboard for Actors, popcorn/ticket for Movies, jersey number for Athletes, TV frame for TV Series, car silhouette for Car Brands). Undrafted windows stand upright; drafting a name flips it down out of the shared pool and into that player's row of 4 slots below.
-- **Reveal screen — the signature moment:** each drafted window physically flips over (a CSS 3D flip, matching the game's real motion) to reveal its rating on the back, one at a time, building the same suspense as flipping down a wrong guess in the real game. Save the biggest surprise for last.
-- Keep the retro board-game texture consistent across all five category re-skins — swap only the icon and accent color per category, not the whole visual language, so it reads as one product with five modes rather than five different apps.
+- Subjective ratings will draw "you're wrong about X" pushback. The documented per-category rubric is the mitigation, not a guarantee.
+- Athlete ratings go stale fastest; blending real-world data (box office, review aggregators, sports APIs) is the long-term fix and is not started.
+- **The auction depends on two humans in a room.** Solo removes the hard blocker but is a genuinely different game — watch whether solo players ever convert to duo, or whether the two modes are just two audiences.
+- Public scale raises the likeness question again if images are ever added. Keep the no-photos constraint.
+- Traffic is the real bottleneck, not the product. One week at 100 views cannot validate or invalidate anything.
 
-## 9. Technical Recommendation (for whoever builds this)
+## 11. Next steps
 
-- **Phase 1:** Next.js app (App Router), deployed on Vercel — zero-config deploy, matches the "easy to ship" requirement directly. Seed data ships as static JSON files bundled with the app and loaded client-side; no backend or database needed to ship something playable today.
-- **Phase 2:** Add a lightweight backend + database (Vercel Postgres, Supabase, or similar) only once accounts/leaderboards are actually wanted — don't build this prematurely.
-- Keep the rating engine and the pool-randomization logic decoupled from the UI, so new categories are just "add a JSON file," not new code.
-- Build the flip-card component (Section 8) once as an isolated, reusable piece, themed per category via props/CSS variables rather than duplicated per category.
-
-## 10. Seed Data
-
-Each entry needs just `name`, `rating (0–100)`, and a one-line `rationale` for the rating (useful for the reveal screen's "why" text) — no avatar field for now. Ship as one JSON file per category (e.g., `/data/actors.json`, `/data/carBrands.json`). Seed file sizes: **50 entries** each for Actors, Movies, and Athletes; **30 entries** each for TV Series and Car Brands. I can generate all five seed datasets as a follow-up deliverable — happy to do that next if useful.
-
-## 11. Success Metrics (no revenue targets, since there's no monetization)
-
-- Matches played per week within your friend group (Phase 1 bar: does it survive past the novelty round?)
-- Once public: return-usage rate (do two-player groups come back for a rematch), shares of result cards, categories played per session.
-
-## 12. Open Risks
-
-- Subjective ratings will draw "you're wrong about X" pushback — the documented rubric (Section 5) is the mitigation, not a guarantee.
-- Athlete ratings go stale fastest; Phase 3's real-data blend is the long-term fix. Car Brand ratings shift more slowly (new model years, reliability reports) but still need occasional refreshes.
-- Public scale eventually raises the avatar/likeness question again if images get added later — keep "no photos of named individuals" as a standing constraint, not just a launch-day shortcut.
-
-## 13. Next Steps
-
-1. Name locked in: **Roster Royale**. Stack locked in: **Next.js, deployed on Vercel**. Theme locked in: **Guess Who–style flip cards** (Section 8).
-2. Generate the five seed datasets (Section 10).
-3. Hand this document + seed data to an implementation agent for the Phase 1 build.
+1. **Wait for a real sample** before drawing conclusions from the funnel. Watch `draft_started` ÷ `/play` first.
+2. **Ship an OG image + `metadataBase`.** Cheapest possible fix that touches acquisition.
+3. **Build shareable result cards.** The one organic loop in the original design that never got built.
+4. **Add email capture to `/custom`** so the traffic that reaches an admittedly locked page is worth something.
+5. Refresh Athletes ratings; they were set to mid-2026 standing.
+6. Replace the boilerplate README.
