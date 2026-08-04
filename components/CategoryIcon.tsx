@@ -147,6 +147,17 @@ export function CategoryIcon({ name, className, accent = "currentColor" }: Props
         </svg>
       );
 
+    case "handbag":
+      return (
+        <svg {...shared}>
+          {/* Handle first, so the body's fill closes it off at the rim */}
+          <path d="M8.4 10V7.6a3.6 3.6 0 0 1 7.2 0V10" />
+          <path d="M3.6 10h16.8l-1.4 10.2H5L3.6 10Z" fill={accent} />
+          {/* Clasp */}
+          <rect x="10.6" y="12.6" width="2.8" height="3.4" rx="0.8" fill="#F0E1BE" />
+        </svg>
+      );
+
     /* A blank plate waiting to be filled in — the custom box has no genre of
        its own, so the icon is the empty card plus the spark that fills it. */
     case "custom-spark":

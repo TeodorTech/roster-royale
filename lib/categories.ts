@@ -5,10 +5,16 @@ import tvSeries from "@/data/tvSeries.json";
 import carBrands from "@/data/carBrands.json";
 import gotCharacters from "@/data/gotCharacters.json";
 import hotdDragons from "@/data/hotdDragons.json";
-import marvelHeroes from "@/data/marvelHeroes.json";
-import heritageClubs from "@/data/heritageClubs.json";
+import superheroes from "@/data/superheroes.json";
+import designerBrands from "@/data/designerBrands.json";
 
-import type { Category, CategoryFile, Entry, IconName, LockedCategory } from "./types";
+import type {
+  Category,
+  CategoryFile,
+  Entry,
+  IconName,
+  LockedCategory,
+} from "./types";
 import { readableOn } from "./color";
 
 /** Kept in sync with `--table` in globals.css — accents are checked against it. */
@@ -24,6 +30,7 @@ const ICONS: IconName[] = [
   "dragon",
   "hero-mask",
   "crest-shield",
+  "handbag",
 ];
 
 function isIconName(value: string): value is IconName {
@@ -43,7 +50,11 @@ function validate(file: CategoryFile): Entry[] {
     const problems: string[] = [];
     if (!entry.id) problems.push("missing id");
     if (!entry.name) problems.push("missing name");
-    if (typeof entry.rating !== "number" || entry.rating < 0 || entry.rating > 100) {
+    if (
+      typeof entry.rating !== "number" ||
+      entry.rating < 0 ||
+      entry.rating > 100
+    ) {
       problems.push(`rating out of range: ${String(entry.rating)}`);
     }
     if (!entry.rationale) problems.push("missing rationale");
@@ -83,13 +94,13 @@ function toCategory(file: CategoryFile): Category {
 export const CATEGORIES: Category[] = [
   actors,
   movies,
-  athletes,
   tvSeries,
-  carBrands,
+  athletes,
   gotCharacters,
   hotdDragons,
-  marvelHeroes,
-  heritageClubs,
+  superheroes,
+  carBrands,
+  designerBrands,
 ].map((file) => toCategory(file as CategoryFile));
 
 export function getCategory(id: string | undefined): Category | undefined {

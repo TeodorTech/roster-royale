@@ -27,6 +27,7 @@ export type IconName =
   | "dragon"
   | "hero-mask"
   | "crest-shield"
+  | "handbag"
   | "custom-spark";
 
 /** A seed file after validation, with display colors derived for the dark board. */

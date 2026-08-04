@@ -673,8 +673,8 @@ check("every seed accent is legible on the table background", () => {
     carBrands: "#1D1D1F",
     gotCharacters: "#6B0F1A",
     hotdDragons: "#C1440E",
-    marvelHeroes: "#ED1D24",
-    heritageClubs: "#2C5F2D",
+    superheroes: "#7B2FBE",
+    designerBrands: "#E0457B",
   };
   for (const [name, hex] of Object.entries(accents)) {
     const ratio = contrastRatio(readableOn(hex, TABLE), TABLE);
