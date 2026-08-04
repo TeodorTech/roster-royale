@@ -1,5 +1,5 @@
-import type { DraftPick, GameState, PlayerId } from "./types";
-import { coinsLeft, STARTING_COINS } from "./draft";
+import type { DraftPick, Entry, GameState, PlayerId } from "./types";
+import { coinsLeft, HOUSE, ROSTER_SIZE, STARTING_COINS, YOU } from "./draft";
 
 export type Totals = [number, number];
 
@@ -80,9 +80,17 @@ export function outcomeFor(picks: readonly DraftPick[], coins: Totals): Outcome 
   return { totals, coins, winner: null, margin: 0, decidedBy: "draw" };
 }
 
-/** Convenience wrapper for a live game state. */
+/**
+ * Convenience wrapper for a live game state.
+ *
+ * Solo never spends, so both purses would read a full 20 and tie — the winner
+ * comes out the same either way, but reporting zero keeps a purse nobody played
+ * with off the results screen and makes "solo never decides on coins" assertable.
+ */
 export function outcomeOf(state: GameState): Outcome {
-  return outcomeFor(state.picks, [coinsLeft(state, 0), coinsLeft(state, 1)]);
+  const coins: Totals =
+    state.mode === "solo" ? [0, 0] : [coinsLeft(state, 0), coinsLeft(state, 1)];
+  return outcomeFor(state.picks, coins);
 }
 
 export type Awards = {
@@ -117,6 +125,74 @@ export function awardsFor(picks: readonly DraftPick[]): Awards | null {
   const overpay = worst && worst !== bestValue ? worst : null;
 
   return { topPick, bestValue, overpay };
+}
+
+/* --- solo ----------------------------------------------------------------- */
+
+/** The best total available from this pool — what a flawless round would score. */
+export function perfectTotal(pool: readonly Entry[], size: number = ROSTER_SIZE): number {
+  return [...pool]
+    .sort((a, b) => b.rating - a.rating)
+    .slice(0, size)
+    .reduce((sum, entry) => sum + entry.rating, 0);
+}
+
+export type SoloAwards = {
+  /** Highest-rated name the player kept. */
+  yourBest: DraftPick;
+  /** Highest-rated name that went to the House — the one they passed on. */
+  letGo: DraftPick;
+  perfect: number;
+  /** How far short of a flawless round. Never negative. */
+  offPerfect: number;
+  /** How many of the pool's best four the player ended up holding, 0..ROSTER_SIZE. */
+  ofTopFour: number;
+};
+
+/**
+ * Solo scoring, kept apart from `awardsFor` on purpose.
+ *
+ * `awardsFor` ranks on rating per coin, and solo pays nothing for anything, so
+ * there it collapses — best value is always the top pick and nothing is ever an
+ * overpay. What matters solo is the two sides of the same decision (the name kept
+ * against the name let go) and the distance from a flawless round, which is the
+ * only score with a ceiling worth chasing: beating the House alone is close to a
+ * coin toss, so "you won" says very little on its own.
+ */
+export function soloAwardsFor(
+  picks: readonly DraftPick[],
+  pool: readonly Entry[],
+): SoloAwards | null {
+  const best = (player: PlayerId) => {
+    const owned = picks.filter((p) => p.player === player);
+    return owned.length
+      ? owned.reduce((a, b) => (b.entry.rating > a.entry.rating ? b : a))
+      : null;
+  };
+
+  const yourBest = best(YOU);
+  const letGo = best(HOUSE);
+  if (!yourBest || !letGo) return null;
+
+  const perfect = perfectTotal(pool);
+  const yours = totalsFor(picks)[YOU];
+
+  // Ranked by sort position rather than by rating value, so a pool holding two
+  // names on the same rating still has exactly ROSTER_SIZE places in its top four.
+  const topFour = new Set(
+    [...pool]
+      .sort((a, b) => b.rating - a.rating)
+      .slice(0, ROSTER_SIZE)
+      .map((entry) => entry.id),
+  );
+
+  return {
+    yourBest,
+    letGo,
+    perfect,
+    offPerfect: Math.max(0, perfect - yours),
+    ofTopFour: picks.filter((p) => p.player === YOU && topFour.has(p.entry.id)).length,
+  };
 }
 
 /** Running total for a player across only the picks revealed so far. */

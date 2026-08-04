@@ -63,6 +63,19 @@ export type LockedCategory = {
 export type PlayerId = 0 | 1;
 
 /**
+ * Who is sitting at the table.
+ *
+ * `duo` is the original pass-and-play auction: two humans bid at each other and
+ * the app records what they agree.
+ *
+ * `solo` is one player against the House. Player 0 is the human and player 1 is
+ * the House, which is not an opponent so much as the complement of the human's
+ * choices — every card the player passes on lands in the House's tray. That is
+ * what lets the reveal, the trays and the scoring run unchanged across both.
+ */
+export type GameMode = "duo" | "solo";
+
+/**
  * Named `DraftPick` rather than `Pick` so it does not shadow the built-in
  * `Pick<T, K>` utility type.
  */
@@ -80,6 +93,7 @@ export type Phase = "drafting" | "revealing" | "results";
 export type GameState = {
   categoryId: string;
   seed: string;
+  mode: GameMode;
   phase: Phase;
   /** The drawn pool, in display order. Never reordered after the draw. */
   pool: Entry[];

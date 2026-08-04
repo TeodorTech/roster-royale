@@ -1,4 +1,4 @@
-import type { DraftPick, Entry, GameState, PlayerId } from "./types";
+import type { DraftPick, Entry, GameMode, GameState, PlayerId } from "./types";
 import { createRng } from "./rng";
 import { drawPool } from "./pool";
 import { revealSequence } from "./reveal";
@@ -6,8 +6,23 @@ import { revealSequence } from "./reveal";
 export const POOL_SIZE = 8;
 export const ROSTER_SIZE = 4;
 
-/** Each player's purse at the start of a round. */
+/**
+ * Solo's forcing rules depend on `POOL_SIZE === ROSTER_SIZE * 2` — see `canPass`.
+ * `logic.check.ts` asserts it so a future pool-size change fails loudly in Node
+ * rather than silently deadlocking a solo round in the browser.
+ */
+
+/** Each player's purse at the start of a round. Duo only; solo plays for free. */
 export const STARTING_COINS = 20;
+
+/** Solo seating. Stated once here so the polarity can never be inverted by hand. */
+export const YOU: PlayerId = 0;
+export const HOUSE: PlayerId = 1;
+
+/** Narrows a `?mode=` value. Anything unrecognised is the original two-player game. */
+export function parseMode(value: string | undefined): GameMode {
+  return value === "solo" ? "solo" : "duo";
+}
 
 /**
  * Snake order for two players: each round reverses, so neither player owns every
@@ -24,15 +39,24 @@ export function snakeOrder(rosterSize: number): PlayerId[] {
   return order;
 }
 
-export function createGame(categoryId: string, seed: string, entries: readonly Entry[]): GameState {
+export function createGame(
+  categoryId: string,
+  seed: string,
+  entries: readonly Entry[],
+  mode: GameMode = "duo",
+): GameState {
   const rng = createRng(seed);
   return {
     categoryId,
     seed,
+    mode,
     phase: "drafting",
     // Surfacing order: pool[0] comes up first, pool[7] last.
     pool: drawPool(entries, POOL_SIZE, rng),
-    turnOrder: snakeOrder(ROSTER_SIZE),
+    // Snake order is meaningless solo — the player decides every card — and an
+    // empty order makes `firstSay` return null throughout, so the "X opens"
+    // prompt and the tray's turn glow fall away without a special case.
+    turnOrder: mode === "solo" ? [] : snakeOrder(ROSTER_SIZE),
     picks: [],
     revealSequence: [],
     revealed: 0,
@@ -89,6 +113,43 @@ export function isTaken(state: GameState, entryId: string): boolean {
   return state.picks.some((p) => p.entry.id === entryId);
 }
 
+/* --- solo ----------------------------------------------------------------- */
+
+/** Cards still to come, including the one on the table. */
+export function cardsLeft(state: GameState): number {
+  return state.pool.length - state.picks.length;
+}
+
+/** Empty recesses in this player's tray. */
+export function slotsLeft(state: GameState, player: PlayerId): number {
+  return ROSTER_SIZE - rosterOf(state, player).length;
+}
+
+/** Whether the solo player can claim the card showing. */
+export function canTake(state: GameState): boolean {
+  return (
+    state.phase === "drafting" && currentCard(state) !== null && slotsLeft(state, YOU) > 0
+  );
+}
+
+/**
+ * Whether the solo player can let the card showing go to the House.
+ *
+ * The two limits are the same limit. Because the pool is exactly two rosters,
+ * `cardsLeft === slotsLeft(YOU) + slotsLeft(HOUSE)`, so the House running out of
+ * room is precisely the moment the player needs every card that is left. Both
+ * are spelled out because the equivalence is an arithmetic accident of the sizes,
+ * not something either condition states on its own.
+ */
+export function canPass(state: GameState): boolean {
+  return (
+    state.phase === "drafting" &&
+    currentCard(state) !== null &&
+    slotsLeft(state, HOUSE) > 0 &&
+    cardsLeft(state) > slotsLeft(state, YOU)
+  );
+}
+
 export type Action =
   | { type: "ASSIGN"; player: PlayerId; price: number }
   | { type: "UNDO" }
@@ -101,8 +162,18 @@ export function gameReducer(state: GameState, action: Action): GameState {
     case "ASSIGN": {
       if (state.phase !== "drafting") return state;
 
-      const price = Math.floor(action.price);
-      if (!Number.isFinite(price) || !canAssign(state, action.player, price)) return state;
+      // Solo plays for free. Forced here rather than trusted from the caller: the
+      // solo awards and the hidden coin UI all rest on every price being zero, and
+      // a stale render must not be able to smuggle a bid into the record.
+      const price = state.mode === "solo" ? 0 : Math.floor(action.price);
+
+      const allowed =
+        state.mode === "solo"
+          ? action.player === YOU
+            ? canTake(state)
+            : canPass(state)
+          : Number.isFinite(price) && canAssign(state, action.player, price);
+      if (!allowed) return state;
 
       const entry = currentCard(state);
       if (!entry) return state;

@@ -9,14 +9,30 @@ import {
   currentCard,
   firstSay,
   canAssign,
+  canPass,
+  canTake,
+  cardsLeft,
   coinsLeft,
+  parseMode,
+  slotsLeft,
   spentBy,
   rosterOf,
   draftIsFull,
+  HOUSE,
+  POOL_SIZE,
   ROSTER_SIZE,
   STARTING_COINS,
+  YOU,
 } from "./draft";
-import { outcomeFor, totalsFor, spendFor, awardsFor } from "./score";
+import {
+  outcomeFor,
+  outcomeOf,
+  totalsFor,
+  spendFor,
+  awardsFor,
+  perfectTotal,
+  soloAwardsFor,
+} from "./score";
 import type { PlayerId } from "./types";
 
 import { readableOn, contrastRatio } from "./color";
@@ -423,6 +439,225 @@ check("overpay is never also the best value", () => {
   const awards = awardsFor(single)!;
   assert.equal(awards.bestValue.order, 0);
   assert.equal(awards.overpay, null, "the only pick cannot be both");
+});
+
+// --- solo: you vs the House -------------------------------------------------
+
+check("the pool is exactly two rosters", () => {
+  // Solo's forcing rule leans on this: cardsLeft === slotsLeft(YOU) + slotsLeft(HOUSE),
+  // which is why the House filling up is the same moment the player needs every
+  // card that is left. Change POOL_SIZE without revisiting `canPass` and a solo
+  // round can reach a card that can neither be taken nor passed, and hang.
+  assert.equal(POOL_SIZE, ROSTER_SIZE * 2);
+});
+
+check("mode defaults to duo and parses only the exact string", () => {
+  assert.equal(createGame("test", "mode", entries).mode, "duo", "existing call sites unchanged");
+  assert.equal(createGame("test", "mode", entries, "solo").mode, "solo");
+  assert.equal(parseMode("solo"), "solo");
+  assert.equal(parseMode("Solo"), "duo");
+  assert.equal(parseMode(undefined), "duo");
+  assert.equal(parseMode("nonsense"), "duo");
+});
+
+check("solo has no turn order, so nobody is prompted to open", () => {
+  const state = createGame("test", "solo-say", entries, "solo");
+  assert.deepEqual(state.turnOrder, []);
+  assert.equal(firstSay(state), null, "the 'X opens' line can never render solo");
+});
+
+/**
+ * A solo round. `decide` stands in for the player's Take/Pass call, falling
+ * through to whichever move is still legal — mirroring the disabled button in the
+ * UI — and asserting at every card that at least one of them is.
+ */
+function playSolo(seed: string, decide: (state: Game) => "take" | "pass") {
+  let state = createGame("test", seed, entries, "solo");
+  let guard = 0;
+  while (!draftIsFull(state) && guard++ < 50) {
+    assert.ok(canTake(state) || canPass(state), `${seed}: deadlocked on card ${guard}`);
+    const wanted = decide(state);
+    const take = wanted === "take" ? canTake(state) : !canPass(state);
+    state = gameReducer(state, {
+      type: "ASSIGN",
+      player: take ? YOU : HOUSE,
+      price: 0,
+    });
+  }
+  return state;
+}
+
+check("taking everything still leaves the House a full tray", () => {
+  const state = playSolo("solo-greedy", () => "take");
+  assert.equal(state.picks.length, 8);
+  assert.equal(rosterOf(state, YOU).length, 4);
+  assert.equal(rosterOf(state, HOUSE).length, 4);
+});
+
+check("passing on everything still fills the player's tray", () => {
+  // Without `canPass` this round ends 0-for-8 and the player never drafts at all.
+  const state = playSolo("solo-timid", () => "pass");
+  assert.equal(state.picks.length, 8);
+  assert.equal(rosterOf(state, YOU).length, 4);
+  assert.equal(rosterOf(state, HOUSE).length, 4);
+});
+
+check("every solo round ends four apiece with no card lost", () => {
+  for (let i = 0; i < 200; i++) {
+    const rng = createRng(`policy-${i}`);
+    const state = playSolo(`solo-${i}`, () => (rng() < 0.5 ? "take" : "pass"));
+    assert.equal(state.picks.length, 8, `seed solo-${i}`);
+    assert.equal(new Set(state.picks.map((p) => p.entry.id)).size, 8, `seed solo-${i}`);
+    assert.equal(rosterOf(state, YOU).length, 4, `seed solo-${i}`);
+    assert.equal(rosterOf(state, HOUSE).length, 4, `seed solo-${i}`);
+  }
+});
+
+check("the reducer enforces the roster cap, not just the disabled button", () => {
+  let state = createGame("test", "solo-cap", entries, "solo");
+  for (let i = 0; i < ROSTER_SIZE; i++) {
+    state = gameReducer(state, { type: "ASSIGN", player: YOU, price: 0 });
+  }
+  assert.equal(canTake(state), false);
+  assert.equal(gameReducer(state, { type: "ASSIGN", player: YOU, price: 0 }), state);
+});
+
+check("the reducer enforces the forced take", () => {
+  let state = createGame("test", "solo-forced", entries, "solo");
+  for (let i = 0; i < ROSTER_SIZE; i++) {
+    state = gameReducer(state, { type: "ASSIGN", player: HOUSE, price: 0 });
+  }
+  assert.equal(canPass(state), false, "the player now needs every card left");
+  assert.equal(cardsLeft(state), slotsLeft(state, YOU));
+  assert.equal(gameReducer(state, { type: "ASSIGN", player: HOUSE, price: 0 }), state);
+  assert.equal(canTake(state), true, "but taking is always still open");
+});
+
+check("solo plays for free even if a price is handed to the reducer", () => {
+  const state = gameReducer(createGame("test", "solo-free", entries, "solo"), {
+    type: "ASSIGN",
+    player: YOU,
+    price: 7,
+  });
+  assert.equal(state.picks[0].price, 0);
+  assert.equal(coinsLeft(state, YOU), STARTING_COINS, "nothing was ever spent");
+});
+
+check("solo never decides on coins", () => {
+  for (let i = 0; i < 100; i++) {
+    const rng = createRng(`coinless-${i}`);
+    const state = playSolo(`coinless-${i}`, () => (rng() < 0.5 ? "take" : "pass"));
+    const outcome = outcomeOf(state);
+    assert.deepEqual(outcome.coins, [0, 0], `seed coinless-${i}`);
+    assert.notEqual(outcome.decidedBy, "coins", `seed coinless-${i}`);
+  }
+});
+
+check("undo puts a passed card back and reopens the take", () => {
+  let state = createGame("test", "solo-undo", entries, "solo");
+  const first = currentCard(state)!;
+  state = gameReducer(state, { type: "ASSIGN", player: HOUSE, price: 0 });
+  assert.equal(rosterOf(state, HOUSE).length, 1);
+
+  state = gameReducer(state, { type: "UNDO" });
+  assert.equal(state.picks.length, 0);
+  assert.equal(currentCard(state)?.id, first.id, "the same card is back on the table");
+  assert.equal(canTake(state), true);
+});
+
+check("undo walks back out of a forced take", () => {
+  let state = createGame("test", "solo-undo-forced", entries, "solo");
+  for (let i = 0; i < ROSTER_SIZE; i++) {
+    state = gameReducer(state, { type: "ASSIGN", player: HOUSE, price: 0 });
+  }
+  state = gameReducer(state, { type: "ASSIGN", player: YOU, price: 0 });
+
+  // Undoing the forced take leaves four passes standing, so it is still forced.
+  state = gameReducer(state, { type: "UNDO" });
+  assert.equal(canPass(state), false);
+  // Undoing one of the passes gives the House room again.
+  state = gameReducer(state, { type: "UNDO" });
+  assert.equal(canPass(state), true);
+});
+
+// --- solo scoring -----------------------------------------------------------
+
+check("solo awards take one name from each side", () => {
+  for (let i = 0; i < 100; i++) {
+    const rng = createRng(`awards-${i}`);
+    const state = playSolo(`awards-${i}`, () => (rng() < 0.5 ? "take" : "pass"));
+    const awards = soloAwardsFor(state.picks, state.pool)!;
+
+    assert.equal(awards.yourBest.player, YOU, `seed awards-${i}`);
+    assert.equal(awards.letGo.player, HOUSE, `seed awards-${i}`);
+    for (const p of state.picks) {
+      const side = p.player === YOU ? awards.yourBest : awards.letGo;
+      assert.ok(side.entry.rating >= p.entry.rating, `seed awards-${i}`);
+    }
+  }
+});
+
+check("perfect total is the best four in the pool", () => {
+  const pool = [96, 80, 91, 74, 88, 73, 85, 90].map((rating, i) => ({
+    id: `x${i}`,
+    name: `n${i}`,
+    rating,
+    rationale: "r",
+  }));
+  assert.equal(perfectTotal(pool), 96 + 91 + 90 + 88);
+});
+
+check("no round ever beats perfect", () => {
+  for (let i = 0; i < 200; i++) {
+    const rng = createRng(`ceiling-${i}`);
+    const state = playSolo(`ceiling-${i}`, () => (rng() < 0.5 ? "take" : "pass"));
+    const awards = soloAwardsFor(state.picks, state.pool)!;
+    assert.ok(awards.offPerfect >= 0, `seed ceiling-${i} scored above perfect`);
+    assert.ok(awards.ofTopFour >= 0 && awards.ofTopFour <= ROSTER_SIZE, `seed ceiling-${i}`);
+  }
+});
+
+check("taking the pool's best four is a perfect round", () => {
+  for (let i = 0; i < 50; i++) {
+    const state = playSolo(`perfect-${i}`, (s) => {
+      // Ranked by sort position, matching `soloAwardsFor` — the seed entries
+      // repeat ratings, so "the top four" is only well defined by position.
+      const topFour = new Set(
+        [...s.pool]
+          .sort((a, b) => b.rating - a.rating)
+          .slice(0, ROSTER_SIZE)
+          .map((e) => e.id),
+      );
+      return topFour.has(currentCard(s)!.id) ? "take" : "pass";
+    });
+    const awards = soloAwardsFor(state.picks, state.pool)!;
+    assert.equal(awards.offPerfect, 0, `seed perfect-${i}`);
+    assert.equal(awards.ofTopFour, ROSTER_SIZE, `seed perfect-${i}`);
+    assert.equal(outcomeOf(state).winner, YOU, `seed perfect-${i}`);
+  }
+});
+
+check("the duo awards degenerate solo, which is why solo has its own", () => {
+  // Every solo price is zero, so rating-per-coin is just rating: the best value
+  // is always the top pick and nothing can ever be an overpay. Pinned here so
+  // nobody "simplifies" solo back onto `awardsFor`.
+  const state = playSolo("degenerate", (s) => (s.picks.length % 2 === 0 ? "take" : "pass"));
+  const awards = awardsFor(state.picks)!;
+  assert.equal(awards.bestValue, awards.topPick);
+  assert.equal(awards.overpay, null);
+});
+
+check("solo reveals still cover every pick and alternate sides", () => {
+  for (let i = 0; i < 50; i++) {
+    const rng = createRng(`solo-reveal-${i}`);
+    const played = playSolo(`solo-reveal-${i}`, () => (rng() < 0.5 ? "take" : "pass"));
+    const state = gameReducer(played, { type: "BEGIN_REVEAL" });
+    assert.equal(state.revealSequence.length, 8, `seed solo-reveal-${i}`);
+    const players = state.revealSequence.map((index) => state.picks[index].player);
+    for (let p = 1; p < players.length; p++) {
+      assert.notEqual(players[p], players[p - 1], `seed solo-reveal-${i}`);
+    }
+  }
 });
 
 // --- accent legibility ------------------------------------------------------

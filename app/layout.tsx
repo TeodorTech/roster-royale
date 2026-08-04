@@ -21,7 +21,7 @@ const nunito = Nunito({
 export const metadata: Metadata = {
   title: "Roster Royale",
   description:
-    "Draft four names from a pool of eight with the ratings hidden, then flip them over and find out who won.",
+    "Draft four names from a pool of eight with every rating hidden, then flip them over and find out who won. Play the House on your own, or pass one phone round with a friend.",
 };
 
 export default function RootLayout({
