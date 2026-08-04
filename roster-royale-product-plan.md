@@ -47,14 +47,16 @@ Nine playable boxes plus one locked. Adding a category is an import plus one arr
 | Athletes | 50 | jersey-number |
 | Game of Thrones | 30 | sword |
 | House of the Dragons | 20 | dragon |
-| Superheroes | 30 | hero-mask |
+| Superheroes | 50 | hero-mask |
 | Car Brands | 30 | car-silhouette |
 | Designer Brands | 50 | handbag |
 | *Custom Game* | *locked* | *custom-spark* |
 
 Each seed file carries a documented **rubric** — the defensible answer to "why is X rated higher than Y". Entries are `{id, name, rating, rationale}`; the rationale is what the reveal screen reads out.
 
-**Retired:** Marvel Superheroes and Sports Clubs, folded into / replaced by the cross-publisher Superheroes box. The `crest-shield` icon is still in the whitelist, currently unused.
+**Retired:** Marvel Superheroes and Sports Clubs. The `crest-shield` icon is still in the whitelist, currently unused.
+
+The Superheroes box deliberately spans **American comics, manga/anime, and screen originals** — roughly a quarter Marvel, a third DC, a third anime, the rest indie and film. The first cut was 57% Marvel, which made it a Marvel box wearing a broader label and left the pool feeling same-y game to game.
 
 **Refresh cadence:** Athletes goes stale fastest (ratings reflect mid-2026 standing). Actors / Movies / TV Series are stable. Car Brands and Designer Brands shift slowest.
 
